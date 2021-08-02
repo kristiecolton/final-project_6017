@@ -10,6 +10,14 @@ img {
 	height: auto;
 }
 
+.attributes {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-around;
+
+}
+
 .button {
 	height: 40px;
  	width: 40px;
@@ -18,7 +26,14 @@ img {
 	background-color: white;
 }
 
-.buttons-and-text-container {
+.knn-buttons-and-text-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.num-points-buttons-and-text-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
