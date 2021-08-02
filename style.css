@@ -10,6 +10,10 @@ img {
 	height: auto;
 }
 
+p {
+	font-weight: bold;
+}
+
 .attributes {
 	display: flex;
 	flex-direction: row;
@@ -26,6 +30,22 @@ img {
 	background-color: white;
 }
 
+.dataset-button {
+	height: 30px;
+ 	width: 80px;
+  	border-radius: 10%;
+	border: 1px solid black;
+	background-color: white;
+	margin: 5px;
+}
+
+.dataset-buttons-and-text-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
 .knn-buttons-and-text-container {
 	display: flex;
 	align-items: center;
@@ -38,6 +58,13 @@ img {
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
+}
+
+.dataset-button-container {
+  display: flex;
+  width: 250px;
+  flex-direction: row;
+  justify-content: center;
 }
 
 .button-container {
