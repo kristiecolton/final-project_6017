@@ -1,14 +1,71 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-
+<head>
+  <style>
+  .yAxis text {
+    font: 10px sans-serif;
+  }
+  .xAxis text {
+    font: 10px sans-serif;
+  }
+  
+  .yAxis path, .yAxis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  
+  rect {
+    fill :#fff;
+  }
+  .xAxis path, .xAxis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  
+  .Knear{
+    margin-top:20px;
+  }
+  
+  #kneighbors{
+    width:200px;
+  }
+  
+  .BIGline {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+  
+  /*circle {color : #000;
+    opacity : .5;
+    fill : #000;}
+  */
+  </style>
+  </head>
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
 
 <!-- Create a div where the graph will take place -->
-<div id="my_dataviz"></div>
+<div id="my_dataviz">
 
+  
+</div>
+<div class="ui-widget">
+
+
+  <input id = "kneighbors" type="search" placeholder="Number of nearest neighbors..." required>
+  <input id= "knear_start"class="Knear" type="button" value="Find Decision Boundary"><br>
+
+
+</div>
 
 <script>
+var points = []
+var maxX= Math.exp(0); 
+var maxY = Math.exp(0);
+
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -48,6 +105,10 @@ d3.csv("test.csv", function(data) {
   svg.append("g")
     .call(d3.axisLeft(y));
 
+
+
+  var color = d3.scaleOrdinal(d3.schemeCategory10)
+  .domain([0, 1]);    
   // Add dots
   svg.append('g')
     .selectAll("dot")
@@ -57,8 +118,104 @@ d3.csv("test.csv", function(data) {
       .attr("cx", function (d) { return x(d.x1); } )
       .attr("cy", function (d) { return y(d.x2); } )
       .attr("r", 1.5)
-      .style("fill", "#69b3a2")
+      .style("fill", function(d){return color(d.label); })
 
+})
+function EuclideanDistance(point1,point2) 
+{
+	return Math.sqrt(Math.pow((point1.x - point2.x),2) + Math.pow((point1.y - point2.y),2));
+}
+
+function distance(point) 
+{
+		return points.map(function(d){return EuclideanDistance(point,d);
+		});
+}
+function sort(arr) 
+{
+  return arr.concat().sort();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function Knearest(k,distances)
+{
+	var mins=sort(distances).slice(0,k);
+	var sum = 0;
+	for(var i=0; i < mins.length; i++){
+	 sum += points[distances.indexOf(mins[i])].class ;
+	}
+	return Math.round(sum/k)
+}
+
+
+function drawKnearest(k)
+{
+  console.log("made it here")
+	pathremove();
+	var testArray=[];
+		for (var i = 0; i<100 ; i++){
+			var temporaryArray=[];
+			for (var j = 0; j<100 ; j++){
+					var pointClass = Knearest(k,distance({x:i*maxX/100,y:j*maxY/100}));
+					temporaryArray.push({x:i*maxX/100,y:j*maxY/100, class:pointClass});
+				}
+			testArray.push(temporaryArray);
+		};
+
+
+	var lineArray=[]
+	for (var i = 1; i<99 ; i++){
+			for (var j = 1; j<99 ; j++){
+				var line = 0;
+				if (testArray[i][j].class !== testArray[i+1][j].class ||
+					testArray[i][j].class !== testArray[i][j+1].class ||
+					testArray[i][j].class !== testArray[i+1][j+1].class ||
+					testArray[i][j].class !== testArray[i-1][j].class ||	
+					testArray[i][j].class !== testArray[i][j-1].class ||
+					testArray[i][j].class !== testArray[i-1][j-1].class ||
+					testArray[i][j].class !== testArray[i+1][j-1].class ||
+					testArray[i][j].class !== testArray[i-1][j+1].class
+					){
+					lineArray.push(testArray[j][i]);
+				}
+			}
+		}
+	var line = d3.line()
+  .curve(d3.curveNatural)   
+	    .x(function(d) { return x(d.x); })
+	    .y(function(d) { return y(d.y); });
+
+	svg.append("path")
+	      .datum(lineArray)
+	      .attr("class", "BIGline")
+	      .attr("d", line);
+
+}
+
+function pathremove()
+{
+svg.selectAll(".BIGline")
+	.remove();
+}
+
+
+
+d3.select("#knear_start").on("click", function() {
+  var k_number = d3.select("#kneighbors").node().value;
+
+  console.log("made it here")
+  console.log(k_number)
+  return drawKnearest(k_number)
 })
 
 </script>
