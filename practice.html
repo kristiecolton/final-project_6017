@@ -2,50 +2,33 @@
 <meta charset="utf-8">
 <head>
   <style>
-  .yAxis text {
-    font: 10px sans-serif;
-  }
-  .xAxis text {
-    font: 10px sans-serif;
-  }
-  
-  .yAxis path, .yAxis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-  }
-  
-  rect {
-    fill :#fff;
-  }
-  .xAxis path, .xAxis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-  }
-  
-  .Knear{
-    margin-top:20px;
-  }
-  
-  #kneighbors{
-    width:200px;
-  }
-  
-  .BIGline {
-    fill: none;
-    stroke: steelblue;
-    stroke-width: 1.5px;
-  }
-  
-  /*circle {color : #000;
-    opacity : .5;
-    fill : #000;}
-  */
+    body {
+      font-family: monospace;
+    }
+    
+    .k {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+    }
+    
+    .k span {
+      position: relative;
+      bottom: 7px;
+      padding: 0 10px;
+    }
+    
+    .hull {
+      fill: tomato;
+      fill-opacity: 0.25;
+      stroke: tomato;
+      pointer-events: none;
+    }
   </style>
-  </head>
+</head>
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
+
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz">
@@ -62,10 +45,21 @@
 </div>
 
 <script>
-var points = []
-var maxX= Math.exp(0); 
-var maxY = Math.exp(0);
 
+var k=5
+
+d3.select("#knear_start").on("click", function() {
+
+  // k = +kDiv.select("input").node().value;
+  //         d3.select(this).select("span").text("K = " + k);
+  //         findNearest.k(k);
+  var k_number = d3.select("#kneighbors").node().value;
+
+  console.log("made it here");
+  console.log(k_number);
+  k=k_number;
+  return findNearest.k(k_number);
+})
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -80,15 +74,28 @@ var svg = d3.select("#my_dataviz")
   .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
+ 
 
+
+
+  svg.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .style("fill-opacity", 0)
+  .on("mousemove", mousemove)
+  
 //Read the data
-
+data=[]
 //d3.csv("data/moons.csv", function(data) {
-d3.csv("test.csv", function(data) {
+d3.csv("test.csv", function(data_points) {
 
-  console.log(data[0].x1);
-  console.log(data[0].x2);
-  console.log(data[0].label);
+
+for (var i=0 ;i<data_points.length;i++)
+{
+  data.push({x : data_points[i].x1, y : data_points[i].x2, class : data_points[i].label});
+}
+
+// console.log(data)
 
   // Add X axis
   var x = d3.scaleLinear()
@@ -112,7 +119,7 @@ d3.csv("test.csv", function(data) {
   // Add dots
   svg.append('g')
     .selectAll("dot")
-    .data(data)
+    .data(data_points)
     .enter()
     .append("circle")
       .attr("cx", function (d) { return x(d.x1); } )
@@ -120,102 +127,257 @@ d3.csv("test.csv", function(data) {
       .attr("r", 1.5)
       .style("fill", function(d){return color(d.label); })
 
-})
-function EuclideanDistance(point1,point2) 
-{
-	return Math.sqrt(Math.pow((point1.x - point2.x),2) + Math.pow((point1.y - point2.y),2));
-}
 
-function distance(point) 
-{
-		return points.map(function(d){return EuclideanDistance(point,d);
-		});
-}
-function sort(arr) 
-{
-  return arr.concat().sort();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-function Knearest(k,distances)
-{
-	var mins=sort(distances).slice(0,k);
-	var sum = 0;
-	for(var i=0; i < mins.length; i++){
-	 sum += points[distances.indexOf(mins[i])].class ;
-	}
-	return Math.round(sum/k)
-}
-
-
-function drawKnearest(k)
-{
-  console.log("made it here")
-	pathremove();
-	var testArray=[];
-		for (var i = 0; i<100 ; i++){
-			var temporaryArray=[];
-			for (var j = 0; j<100 ; j++){
-					var pointClass = Knearest(k,distance({x:i*maxX/100,y:j*maxY/100}));
-					temporaryArray.push({x:i*maxX/100,y:j*maxY/100, class:pointClass});
-				}
-			testArray.push(temporaryArray);
-		};
-
-
-	var lineArray=[]
-	for (var i = 1; i<99 ; i++){
-			for (var j = 1; j<99 ; j++){
-				var line = 0;
-				if (testArray[i][j].class !== testArray[i+1][j].class ||
-					testArray[i][j].class !== testArray[i][j+1].class ||
-					testArray[i][j].class !== testArray[i+1][j+1].class ||
-					testArray[i][j].class !== testArray[i-1][j].class ||	
-					testArray[i][j].class !== testArray[i][j-1].class ||
-					testArray[i][j].class !== testArray[i-1][j-1].class ||
-					testArray[i][j].class !== testArray[i+1][j-1].class ||
-					testArray[i][j].class !== testArray[i-1][j+1].class
-					){
-					lineArray.push(testArray[j][i]);
-				}
-			}
-		}
-	var line = d3.line()
-  .curve(d3.curveNatural)   
-	    .x(function(d) { return x(d.x); })
-	    .y(function(d) { return y(d.y); });
-
-	svg.append("path")
-	      .datum(lineArray)
-	      .attr("class", "BIGline")
-	      .attr("d", line);
-
-}
-
-function pathremove()
-{
-svg.selectAll(".BIGline")
-	.remove();
-}
-
-
-
-d3.select("#knear_start").on("click", function() {
-  var k_number = d3.select("#kneighbors").node().value;
-
-  console.log("made it here")
-  console.log(k_number)
-  return drawKnearest(k_number)
 })
 
+
+
+
+
+
+
+
+
+d3.kNearestNeighbors = function() {
+    var points = [],
+        nodes,
+        extent = null,
+        k = 1
+        
+        var quadtree = d3.quadtree()
+        .x(function(d) {
+            return d.x
+        })
+        .y(function(d) {
+            return d.y
+        })
+    function findNearest(point) {
+      
+      // TODO: make this more efficient by not recalculating quadtree at
+      //       each call of findNearest()
+      
+      // Extract points from the data array
+      points = data.map(function(d) { return [x(d), y(d)]; });
+      // console.log(data.map(function(d) { return [x(d), y(d)]; }));
+      
+      // Add quadtree info to the points
+      nodes = quadtreeify(points);
+        // console.log(nodes);
+      // Flag k-nearest points by adding `selected` property set to `true`
+      
+      
+      // console.log(new Array(nodes));
+      kNearest(new Array(nodes), [], point);
+      
+      // Return nearest points along with indices from origianl `data` array
+      return points
+        .map(function(d, i) {
+          var datum = [d[0], d[1]];
+          datum.i = i;
+          return d.selected ? datum : null; 
+        })
+        .filter(function(d) { return d !== null; });
+    }
+    
+    findNearest.extent = function(_) {
+      if (!arguments.length) return extent;
+      extent = _;
+    //   quadtree.extent(extent);
+      return findNearest;
+    };
+    
+    findNearest.data = function(_) {
+      if (!arguments.length) return data;
+      data = _;
+      return findNearest;
+    };
+    
+    findNearest.k = function(_) {
+      if (!arguments.length) return k;
+      k = _;
+      return findNearest;
+    };
+    
+    findNearest.x = function(_) {
+      if (!arguments.length) return x;
+      x = _;
+      return findNearest;
+    };
+    
+    findNearest.y = function(_) {
+      if (!arguments.length) return y;
+      y = _;
+      return findNearest;
+    };
+    
+    return findNearest;
+    
+    // Add quadtree information to each point (i.e., rectangles, depth, ...)
+    function quadtreeify(points) 
+    {
+    
+        var nodes = d3.quadtree().addAll(points);
+        // console.log(nodes);
+        nodes.depth = 0;
+        // nodes.visit(function(node, x1, y1, x2, y2)
+        //   {
+
+        //   for (var i = 0; i < 4; i++) {
+        //     if (!node.length)
+        //     {
+        //     node.next.depth = node.depth + 1;
+        //     }
+        //   }
+        // });
+            quadtree.visit((node, x1, y1, x2, y2) => {
+              if (!node.length) {
+                do {
+                    node.x1 = x1;
+                    node.y1 = y1;
+                    node.x2 = x2;
+                    node.y2 = y2;
+                    node.depth = node.depth + 1;
+               
+                } while (node = node.next);
+              }
+            });
+        return nodes;
+
+    }
+    
+    // calculate the euclidean distance of two points with coordinates a(ax, ay) and b(bx, by)
+    function euclideanDistance(ax, ay, bx, by) {
+      return Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+    }
+    
+    // calculate minimum distance between search point rectangles
+    function minDistance(x, y, x1, y1, x2, y2) {
+      var dx1 = x - x1,
+          dx2 = x - x2,
+          dy1 = y - y1,
+          dy2 = y - y2;
+      
+      // x is between x1 and x2
+      if (dx1 * dx2 < 0) {
+        // (x, y) is inside the rectangle
+        if (dy1 * dy2 < 0) {
+          return 0; // return 0 as a point in the rectangle
+        }
+        return Math.min(Math.abs(dy1), Math.abs(dy2));
+      }
+      
+      // y is between y1 and y2 (and not inside rectangle)
+      if (dy1 * dy2 < 0) {
+        return Math.min(Math.abs(dx1), Math.abs(dx2));
+      }
+      return Math.min( 
+        Math.min(euclideanDistance(x,y,x1,y1), euclideanDistance(x,y,x2,y2)), 
+        Math.min(euclideanDistance(x,y,x1,y2), euclideanDistance(x,y,x2,y1))
+      );
+    }
+    
+    // Find the nodes within the specified rectangle (used recursively)
+    function kNearest(bestQueue, resultQueue, point) {
+      var x = point[0],
+          y = point[1];
+          console.log(bestQueue)
+      // sort children according to their minDistance/euclideanDistance to search point
+      bestQueue.sort(function(a, b) {
+        console.log("here")
+        // add minDistance to nodes if not there already
+        [a, b].forEach(function(d) {
+          if (d.minDistance === undefined) {
+            d.scanned = true;
+            if (d.leaf) {
+              d.point.scanned = true;
+              d.minDistance = euclideanDistance(x, y, d.x, d.y);
+            }
+            else {
+              d.minDistance = minDistance(x, y, d.x1, d.y1, d.x2, d.y2);
+            }
+          }
+        });
+        return b.minDistance - a.minDistance;
+      });
+      
+      // add nearest leafs (if any)
+      for (var i = bestQueue.length - 1; i >= 0; i--) {
+        console.log(k)
+        var elem = bestQueue[i];
+        console.log(elem.leaf)
+        if (elem.leaf) {
+          elem.point.selected = true;
+          bestQueue.pop();
+          resultQueue.push(elem);
+          console.log(resultQueue)
+        } else { break; }
+        if (resultQueue.length >= k) break;
+      }
+      
+      // check if enough points found
+      if (resultQueue.length >= k || bestQueue.length == 0) { return; }
+      else {
+        console.log(bestQueue)
+        // ...otherwise add child nodes to bestQueue and recurse
+        var visitedNode = bestQueue.pop();
+        visitedNode.visited = true;
+        visitedNode.nodes.forEach(function(d) {
+          bestQueue.push(d);
+        });
+        kNearest(bestQueue, resultQueue, point);
+      }
+    }
+  }
+var findNearest = d3.kNearestNeighbors()
+        .extent([[-1, -1], [width + 1, height + 1]])
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .k(k)
+        .data(data);
+var hull = svg.append("path").attr("class", "hull");       
+
+function mousemove() 
+{
+        preventDefault(event);
+        
+        var nearest = findNearest(d3.mouse(this));
+        
+        // Draw convex hull around k-nearest points (if k > 1)
+        hull.datum(d3.geom.hull(nearest))
+          .attr("d", function(d) { 
+            return d.length > 1 ? "M" + d.join("L") + "Z" : null; 
+          });
+       
+        // Get corresponding "nearest" data points from original data array 
+        nearest = nearest
+          .map(function(d) { return data[d.i]; });
+        
+        // Color nearest points red
+        circles
+          .style("fill", function(d) {
+            return nearest.indexOf(d) !== -1 ? "red" : null;
+          });
+      }
+      
+      function clamp(d, min, max) {
+        return d < min ? min : d > max ? max : d;
+      }
+      
+      function preventDefault(e) {
+        e = e || window.event;
+        if (e.preventDefault) e.preventDefault();
+        e.returnValue = false;  
+      }
+
+
+
+
+
+
+
+
+
+
+
+  
 </script>
