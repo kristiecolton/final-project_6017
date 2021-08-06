@@ -310,8 +310,11 @@ function search(quadtree, x0, y0, x3, y3) {
         var d = node.data;
         d.scanned = true;
         d.selected = (d[0] >= x0) && (d[0] < x3) && (d[1] >= y0) && (d[1] < y3);
+        if (d.selected)
+        {
         color_sum=color_sum+d[2];
         count=count+1;
+        }
       } while (node = node.next);
     }
     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;

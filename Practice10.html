@@ -63,7 +63,7 @@
 <!-- Begin HTML -->
 
 <head>
-  <title>A K-Nearest Neighbors Visualization</title>
+  <title>K-Nearest Neighbors Visualization</title>
   <!-- <link rel="stylesheet" href="style.css"> -->
 </head>
 
@@ -80,7 +80,7 @@
     <!-- Graph Container -->
     <div class="container">   
       <svg id="iris" width="900" height="600"></svg>
-      <svg id="random" width="900" height="600"></svg> -->
+      <svg id="random" width="900" height="600"></svg>
     </div>
  
  
@@ -97,7 +97,7 @@
       <div>
         <p>Dataset</p>
       </div>
-
+      <svg id="please_change_colors" width="900" height="600"></svg>
     </div>
 
       
@@ -136,12 +136,16 @@ var svg = d3.select("#iris"),
 
 
 data_Array=[]
+
+var color = d3.scaleOrdinal(d3.schemeCategory10)
+  .domain([0,1, 2,3]);   
+  var sampleSVG = d3.select("#please_change_colors")
 d3.csv("Data/irisdata.csv", function(data_points) {
 console.log(data_points);
 for (var i=0 ;i<data_points.length;i++)
 {
     
-    data_Array.push({x : ((data_points[i].SL*100)), y : ((data_points[i].SW*100)), class : ((data_points[i].t))});
+    data_Array.push({x : ((data_points[i].SL*100)), y : ((data_points[i].SW*100)), class : ((parseInt(data_points[i].t)))});
 }
 
 x=function(d) {
@@ -155,15 +159,10 @@ x=function(d) {
             return d.class;
         };        
 
-data_for_quad = data_Array.map(function(d) { return [x(d), y(d)]}); 
+        data_for_quad = data_Array.map(function(d) { return [x(d), y(d),classes(d)]}); 
 
 console.log(data_points[1].SL)
 console.log(data_for_quad)
-///INSERTED SECTION
-
-var color = d3.scaleOrdinal(d3.schemeCategory10)
-  .domain([0, 2]);   
-
 
 
 var quadtree = d3.quadtree()
@@ -189,15 +188,9 @@ var point = svg.selectAll(".point")
     .attr("cx", function(d) { return d[0]; })
     .attr("cy", function(d) { return d[1]; })
     .attr("r", 2) 
+    .style("fill", function(d){return color(d[2]); })
    
-//     var point = svg.selectAll(".point")
-//   .data(data_Array)
-//   .enter().append("circle")
-//     .attr("class", "point")
-//     .attr("cx", function(d) { return d.x; })
-//     .attr("cy", function(d) { return d.y; })
-//     .attr("r", 2)
-//     .style("fill", function(d){return color(d.class); })
+  
 
 
 
@@ -207,15 +200,29 @@ svg.append("g")
     .call(brush.move, [[100, 100], [200, 200]]);
 
 
-
+var color_sum=0;
+var count=0;
 function brushed() {
   var extent = d3.event.selection;
   point.each(function(d) { d.scanned = d.selected = false; });
   search(quadtree, extent[0][0], extent[0][1], extent[1][0], extent[1][1]);
   point.classed("point--scanned", function(d) { return d.scanned; });
   point.classed("point--selected", function(d) { return d.selected; });
+  sampleSVG.select('circle')
+  	  .transition()
+  	  .duration(1000)
+  	  .attr('fill',function(){return color(Math.round(color_sum/count)); })
+  console.log(color_sum)
+  color_sum=0;
+  count=0;
+
 }
 
+sampleSVG.append('circle')
+  .attr('cx', 100)
+  .attr('cy', 100)
+  .attr('r', 50)
+  .attr('fill', function(){return color(Math.round(color_sum/count)); });
 // Find the nodes within the specified rectangle.
 function search(quadtree, x0, y0, x3, y3) {
   quadtree.visit(function(node, x1, y1, x2, y2) {
@@ -224,6 +231,11 @@ function search(quadtree, x0, y0, x3, y3) {
         var d = node.data;
         d.scanned = true;
         d.selected = (d[0] >= x0) && (d[0] < x3) && (d[1] >= y0) && (d[1] < y3);
+        if (d.selected)
+        {
+        color_sum=color_sum+d[2];
+        count=count+1;
+        }
       } while (node = node.next);
     }
     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
@@ -297,17 +309,8 @@ var point2 = svg2.selectAll(".point")
     .attr("cx", function(d) { return d[0]; })
     .attr("cy", function(d) { return d[1]; })
     .attr("r", 2) 
+    .style("fill", function(d){return color(d[2]); })
    
-//     var point = svg.selectAll(".point")
-//   .data(data_Array)
-//   .enter().append("circle")
-//     .attr("class", "point")
-//     .attr("cx", function(d) { return d.x; })
-//     .attr("cy", function(d) { return d.y; })
-//     .attr("r", 2)
-//     .style("fill", function(d){return color(d.class); })
-
-
 
 
 
@@ -321,13 +324,21 @@ var point2 = svg2.selectAll(".point")
     .attr("class", "brush")
     .call(brush2)
     .call(brush2.move, [[100, 100], [200, 200]]);
-    
+  var color_sum=0;
+  var count=0;
     function brushed2() {
   var extent = d3.event.selection;
   point2.each(function(d) { d.scanned = d.selected = false; });
   search2(quadtree2, extent[0][0], extent[0][1], extent[1][0], extent[1][1]);
   point2.classed("point--scanned", function(d) { return d.scanned; });
   point2.classed("point--selected", function(d) { return d.selected; });
+  sampleSVG.select('circle')
+  	  .transition()
+  	  .duration(1000)
+  	  .attr('fill',function(){return color(Math.round(color_sum/count)); })
+
+  color_sum=0;
+  count=0;
 }
 
 function search2(quadtree, x0, y0, x3, y3) {
@@ -337,6 +348,11 @@ function search2(quadtree, x0, y0, x3, y3) {
         var d = node.data;
         d.scanned = true;
         d.selected = (d[0] >= x0) && (d[0] < x3) && (d[1] >= y0) && (d[1] < y3);
+        if (d.selected)
+        {
+        color_sum=color_sum+d[2];
+        count=count+1;
+        }
       } while (node = node.next);
     }
     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
