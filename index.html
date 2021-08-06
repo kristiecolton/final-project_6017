@@ -6,10 +6,7 @@
 
 </head>
 <body>
-	<!-- Import D3 ahd JS file -->
-	<script src="https://d3js.org/d3.v7.min.js"></script>
-	<script type="text/javascript" src="knn.js"></script>
-	
+
 	<!-- Title Container -->
 	<div id="title" class="Container">
 		<h1>K-Nearest Neighbors Visualization</h1>
@@ -89,39 +86,7 @@
 		
 	</div>
 
-	<!-- Begin Test Code  -->
-
-
-	<div id="chart" class="needs-border"> </div>
-
-	<div class="ui-widget">
-	    <input id = "number" type="search" placeholder="Number of points..." required>
-        <input class="icon-search" type="button" value="Generate">
-        <input class="clear" type="button" value="Clear"><br>
-        <input id = "kneighbors" type="search" placeholder="Number of nearest neighbors..." required>
-        <input class="Knear" type="button" value="Find Decision Boundary"><br>
-
-	</div>
-
-	<!-- Begin Test Code -->
-	<script>
-
-		// set the dimensions and margins of the graph
-		var margin = {top: 10, right: 30, bottom: 30, left: 60},
-		    width = 460 - margin.left - margin.right,
-		    height = 400 - margin.top - margin.bottom;
-
-		// append the svg object to the body of the page
-		var svg = d3.select("#chart")
-		  .append("svg")
-		    .attr("width", width + margin.left + margin.right)
-		    .attr("height", height + margin.top + margin.bottom)
-		  .append("g")
-		    .attr("transform",
-		          "translate(" + margin.left + "," + margin.top + ")");
-
-		
-	</script>
+	
 
 </body>
 </html>

@@ -77,7 +77,6 @@
       <svg id="iris" width="900" height="600"></svg>
       <svg id="random" width="900" height="600"></svg> -->
     </div>
- 
  
     <!-- Buttons & "Data Set" text container -->
     <div class="dataset-buttons-and-text-container">
@@ -94,11 +93,8 @@
       </div>
 
     </div>
-
       
   </div>    
-
-   
 
 </body>
 
@@ -120,12 +116,10 @@
   };
 
 
-
 var svg = d3.select("#iris"),
     width = +svg.attr("width"),
     height = +svg.attr("height"),
     selected;
-    
 
 
 data_Array=[]
@@ -158,6 +152,8 @@ var color = d3.scaleOrdinal(d3.schemeCategory10)
   .domain([0, 2]);   
 
 
+    var random = Math.random,
+    data = d3.range(2500).map(function() { return [random() * width, random() * height]; });
 
 var quadtree = d3.quadtree()
     .extent([[-1, -1], [width + 1, height + 1]])
@@ -233,93 +229,10 @@ function nodes(quadtree) {
   });
   return nodes;
     }
+
+
+
+
+
 });
-
-
-
-
-
-var random = Math.random
-    function getRandomInt(max) 
-{
-  return Math.floor(Math.random() * max);
-}
-
-var data_with_class = d3.range(2500).map(function() { return [random() * width, random() * height,getRandomInt(2)]; });
-
-
-
-//pray for me
-var svg2 = d3.select("#random"),
-width = +svg.attr("width"),
-height = +svg.attr("height"),
-selected;
-
-
-
-
-function nodes2(quadtree) {
-  var nodes = [];
-  quadtree.visit(function(node, x0, y0, x1, y1) {
-    node.x0 = x0, node.y0 = y0;
-    node.x1 = x1, node.y1 = y1;
-    nodes.push(node);
-  });
-  return nodes;
-}
-
-var quadtree2 = d3.quadtree()
-    .extent([[-1, -1], [width + 1, height + 1]])
-    .addAll(data_with_class);
-
-
-
-svg2.selectAll(".node")
-  .data(nodes2(quadtree2))
-  .enter().append("rect")
-    .attr("class", "node")
-    .attr("x", function(d) { return d.x0; })
-    .attr("y", function(d) { return d.y0; })
-    .attr("width", function(d) { return d.y1 - d.y0; })
-    .attr("height", function(d) { return d.x1 - d.x0; });
-
-var point2 = svg2.selectAll(".point")
-  .data(data_with_class)
-  .enter().append("circle")
-    .attr("class", "point")
-    .attr("cx", function(d) { return d[0]; })
-    .attr("cy", function(d) { return d[1]; })
-    .attr("r", 2) 
-   
-//     var point = svg.selectAll(".point")
-//   .data(data_Array)
-//   .enter().append("circle")
-//     .attr("class", "point")
-//     .attr("cx", function(d) { return d.x; })
-//     .attr("cy", function(d) { return d.y; })
-//     .attr("r", 2)
-//     .style("fill", function(d){return color(d.class); })
-
-
-
-svg2.append("g")
-    .attr("class", "brush")
-    .call(brush2)
-    .call(brush2.move, [[100, 100], [200, 200]]);
-
-
-
-
-
-
-    function brushed2() {
-  var extent = d3.event.selection;
-  point2.each(function(d) { d.scanned = d.selected = false; });
-  search(quadtree, extent[0][0], extent[0][1], extent[1][0], extent[1][1]);
-  point2.classed("point--scanned", function(d) { return d.scanned; });
-  point2.classed("point--selected", function(d) { return d.selected; });
-}
-
-var brush2 = d3.brush()
-    .on("brush", brushed2);
 </script>

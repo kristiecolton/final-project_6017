@@ -53,6 +53,11 @@
   shape-rendering: crispEdges;
 }
 
+#random {
+  display: none;
+  
+}
+
 </style>
 
 <!-- Begin HTML -->
@@ -85,7 +90,7 @@
       <!-- Buttons  Container -->
       <div class="dataset-button-container">  
         <button class="dataset-button" onclick="showIrisDataset()">Iris</button>
-        <button class="dataset-button" onclick="hideIrisDataset()">Random</button>
+        <button class="dataset-button" onclick="showRandomDataset()">Random</button>
       </div>
 
       <!-- "Dataset" Text  Container -->
@@ -110,16 +115,18 @@
 <script>
 
   var showIrisDataset = function (){
-    console.log("Showing iris dataset");
+     // Hide random dataset
+    document.getElementById("random").style.display = "none";
+    // Show iris dataset
     document.getElementById("iris").style.display = "block";
   };
 
-  var hideIrisDataset = function (){
-    console.log("Hiding iris dataset");
+  var showRandomDataset = function (){
+    // Hide iris dataset
     document.getElementById("iris").style.display = "none";
+    // Show random dataset
+    document.getElementById("random").style.display = "block";
   };
-
-
 
 var svg = d3.select("#iris"),
     width = +svg.attr("width"),
