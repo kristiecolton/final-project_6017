@@ -1,4 +1,4 @@
-body {
+/*body {
 	display: flex;
  	align-items: center;
  	justify-content: center;
@@ -81,43 +81,3 @@ p {
 	height:200px;
 }
 
-
-/*. ---------- Begin Test Code ----------   */
-
-.yAxis text {
-  font: 10px sans-serif;
-}
-.xAxis text {
-  font: 10px sans-serif;
-}
-
-.yAxis path, .yAxis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-rect {
-	fill :#fff;
-}
-.xAxis path, .xAxis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.Knear{
-	margin-top:20px;
-}
-
-#kneighbors{
-	width:200px;
-}
-
-.BIGline {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-/*----- End Test Code ----------*/
